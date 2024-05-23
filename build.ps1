@@ -1,0 +1,1 @@
+g++ src/main.cpp src/glad.c -L lib -lglfw3 -lgdi32 -lopengl32 -o build/app.exe
