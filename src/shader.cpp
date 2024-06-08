@@ -1,8 +1,8 @@
 #include "../include/shader.h"
 
 Shader::Shader(){
-    const std::string vertex_path = "../src/shaders/vshader.vert";
-    const std::string fragment_path = "../src/shaders/fshader.frag";
+    const std::string vertex_path = "src/shaders/vshader.vert";
+    const std::string fragment_path = "src/shaders/fshader.frag";
 
     const std::string vertex_source = readfile(vertex_path);
     GLuint vertex_shader = createShader(vertex_source, GL_VERTEX_SHADER);

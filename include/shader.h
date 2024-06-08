@@ -9,7 +9,7 @@
 
 
 class Shader{
-private:
+public:
     GLuint id;
     std::string readfile(const std::string &path);
     GLuint createShader(const std::string &source, GLenum type);
