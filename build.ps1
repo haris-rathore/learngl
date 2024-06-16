@@ -1,1 +1,0 @@
-g++ src/main.cpp src/glad.c src/shader.cpp -L lib -lglfw3 -lgdi32 -lopengl32 -o app.exe

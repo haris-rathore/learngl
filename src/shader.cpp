@@ -1,8 +1,8 @@
-#include "../include/shader.h"
+#include "shader.hpp"
 
 Shader::Shader(){
-    const std::string vertex_path = "src/shaders/vshader.vert";
-    const std::string fragment_path = "src/shaders/fshader.frag";
+    const std::string vertex_path = "../src/shaders/default.vert";
+    const std::string fragment_path = "../src/shaders/default.frag";
 
     const std::string vertex_source = readfile(vertex_path);
     GLuint vertex_shader = createShader(vertex_source, GL_VERTEX_SHADER);
@@ -29,7 +29,6 @@ Shader::Shader(){
 std::string Shader::readfile(const std::string &path){
     std::ifstream file(path);
     std::stringstream file_stream;
-    // std::cout << "hi" << file_stream.str() << "hi\n";
     file_stream << file.rdbuf();
     file.close();
     return file_stream.str();

@@ -1,15 +1,15 @@
 #include <iostream>
 #include <array>
 #include <cmath>
-#include "../include/glad/glad.h"
-#include "../include/GLFW/glfw3.h"
-#include "../include/glm/glm.hpp"
-#include "../include/glm/gtc/matrix_transform.hpp"
-#include "../include/glm/gtc/type_ptr.hpp"
-#include "../include/shader.h"
+#include "../glad/include/glad/glad.h"
+#include "../glfw-3.4/include/GLFW/glfw3.h"
+#include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
+#include "../glm/gtc/type_ptr.hpp"
+#include "shader.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../include/stb_image.h"
+#include "../stb/stb_image.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
@@ -119,7 +119,7 @@ int main(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, nrChannels;
-    GLubyte *data = stbi_load("res/container.jpg", &width, &height, &nrChannels, 0);
+    GLubyte *data = stbi_load("../res/container.jpg", &width, &height, &nrChannels, 0);
     if (data){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -130,7 +130,7 @@ int main(){
     stbi_image_free(data);
 
     stbi_set_flip_vertically_on_load(1);
-    data = stbi_load("res/awesomeface.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("../res/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data){
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
