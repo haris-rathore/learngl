@@ -11,13 +11,77 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb/stb_image.h"
 
+glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+float delta_time = 0.0f;
+float last_frame = 0.0f;
+
+bool firstMouse = true;
+double lastX = 400, lastY = 300;
+float yaw = -90.0f, pitch = 0.0f, Zoom = 45.0f;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
 }
 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos){
+    if (firstMouse){
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+    float sensitivity = 0.1f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+    yaw += xoffset;
+    pitch += yoffset;
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+    Zoom -= (float)yoffset;
+    if (Zoom < 1.0f)
+        Zoom = 1.0f;
+    if (Zoom > 45.0f)
+        Zoom = 45.0f;
+}
+
+
 void processInput(GLFWwindow *window){
+    float cameraSpeed = 2.5f * delta_time;
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        Zoom -= cameraSpeed * 3;
+    if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        Zoom += cameraSpeed * 3;
+    if (Zoom < 1.0f)
+        Zoom = 1.0f;
+    if (Zoom > 45.0f)
+        Zoom = 45.0f;
 }
 
 int main(){
@@ -26,8 +90,9 @@ int main(){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // For MacOS
-    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
     const int WINDOW_WIDTH = 800;
     const int WINDOW_HEIGHT = 600;
@@ -48,6 +113,8 @@ int main(){
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     std::array<float, 180> vertices = {
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
@@ -176,18 +243,18 @@ int main(){
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window)){
+        float current_frame = glfwGetTime();
+        float time = current_frame;
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
         processInput(window);
 
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 
-        float time = glfwGetTime();
-        glm::mat4 view(1.0f);
-        view = glm::translate(view, glm::vec3(3 *(float)sin(time), 0.0f, 3 *(float)cos(time)));
-        view = glm::rotate(view, time, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 projection = glm::perspective(45.0f, WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
-
+        glm::mat4 projection = glm::perspective(glm::radians(Zoom), WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glUniformMatrix4fv(glGetUniformLocation(shader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 

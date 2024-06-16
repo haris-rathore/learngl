@@ -11,22 +11,13 @@ file(GLOB_RECURSE SOURCES
 
 add_executable(app ${SOURCES})
 
-set_target_properties(app PROPERTIES
-        CXX_STANDARD 17
-)
-
 target_include_directories(app PRIVATE glad/include)
+# Include directory needs to be specified because glad.h includes <KHR/khrplatform.h> with angle brackets
 
 if(MINGW)
-        target_link_libraries(app 
-	        PRIVATE glfw opengl32 gdi32
-        )
+        target_link_libraries(app PRIVATE glfw opengl32 gdi32)
 elseif(APPLE)
-        target_link_libraries(app 
-                PRIVATE glfw "-framework Cocoa" "-framework OpenGL" "-framework IOKit"
-        )
+        target_link_libraries(app PRIVATE glfw "-framework Cocoa" "-framework OpenGL" "-framework IOKit")
 elseif(UNIX) # LINUX
-        target_link_libraries(app 
-                PRIVATE glfw GL
-        ) 
+        target_link_libraries(app PRIVATE glfw GL) 
 endif()

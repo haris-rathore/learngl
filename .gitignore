@@ -1,3 +1,4 @@
 .vscode/
-buildW/
-buildL/
+build*/
+*.ps1
+*.sh
